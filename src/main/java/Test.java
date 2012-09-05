@@ -1,4 +1,6 @@
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -9,7 +11,6 @@ import java.util.HashSet;
  */
 public class Test {
     public static void main(String[] args) {
-        System.out.println("hey world");
 
         HashSet sampleList = new HashSet<String>();
         sampleList.add("one");
@@ -18,6 +19,13 @@ public class Test {
         sampleList.add("new york");
 
         FuzzyDeduper fd = new FuzzyDeduper((new CSVReader("advertisers.csv")).getNames(), 3);
-        System.out.println(fd.candidatesByRank());
+        int i=0;
+        Map<Pair<String,String>,Double> ranks =  fd.candidatesByRank();
+        Iterator it = ranks.keySet().iterator();
+        while(it.hasNext() && i<1000){
+            i++;
+            Pair p = (Pair)it.next();
+            System.out.println("(" + i + ")  " + ranks.get(p) + "   " + p.getLeft() + " == " + p.getRight());
+        }
     }
 }

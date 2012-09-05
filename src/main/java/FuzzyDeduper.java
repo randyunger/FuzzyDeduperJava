@@ -83,15 +83,16 @@ public class FuzzyDeduper implements Deduper{
         Map< Pair<String,String>, Double> scores = new HashMap< Pair<String,String>, Double>();
         for(String phoneme: phonemeMap.keySet()){
             Set<String> words = phonemeMap.get(phoneme);
-            Set<Pair<String,String>> wordPairs = makePairs(words);
             double score = score(phoneme.length(), words.size());
-
-            //Increment score
-            for(Pair<String,String> p: wordPairs){
-                if(scores.containsKey(p)) {
-                    scores.put(p, scores.get(p) + score);
+            if(score>10){   //todo: configurable
+                Set<Pair<String,String>> wordPairs = makePairs(words);
+                //Increment score
+                for(Pair<String,String> p: wordPairs){
+                    if(scores.containsKey(p)) {
+                        scores.put(p, scores.get(p) + score);
+                    }
+                    else scores.put(p, score);
                 }
-                else scores.put(p, score);
             }
         }
 
