@@ -20,12 +20,10 @@ public class CSVReader {
 
     public CSVReader(String fileName) {
         try {
-
-             String current = new java.io.File( "." ).getCanonicalPath();
-        System.out.println("Current dir:"+current);
- String currentDir = System.getProperty("user.dir");
-        System.out.println("Current dir using System:" +currentDir);
-
+            String current = new java.io.File( "." ).getCanonicalPath();
+            System.out.println("Current dir:"+current);
+            String currentDir = System.getProperty("user.dir");
+            System.out.println("Current dir using System:" +currentDir);
 
             FileInputStream fstream = new FileInputStream(fileName);
             DataInputStream in = new DataInputStream(fstream);
