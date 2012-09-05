@@ -5,12 +5,12 @@ import java.util.*;
  * User: Randy
  * Date: 9/4/12
  * Time: 8:36 PM
- * To change this template use File | Settings | File Templates.
  */
 public class FuzzyDeduper implements Deduper{
 
     private Set<String> candidates; //Assume input was already deduped. This allows us to use the input values as unique keys for a Set.
     private HashMap<String, Set<String>> phonemeMap = new HashMap<String, Set<String>>();
+    private int granularity;
 
     /**
      * Split input into segments
@@ -30,9 +30,10 @@ public class FuzzyDeduper implements Deduper{
     }
 
     public List<String> makeAllPhonemes(String input, int startingSize){   //todo: Should be a Set
-        List<String> phonemeList = new ArrayList<String>();                //todo: make an exception if startingsize>length
-        for(int i=startingSize; i<=input.length() && i<=6; i++){           //todo: configurable
-            phonemeList.addAll(makePhonemes(input, i));
+        List<String> phonemeList = new ArrayList<String>();
+        for(int i=startingSize; i<=input.length() && i<=10; i++){           //todo: configurable
+            if(input.length()<startingSize) phonemeList.add(input);         //make an exception if startingsize>length
+            else phonemeList.addAll(makePhonemes(input, i));
         }
         return phonemeList;
     }
@@ -44,10 +45,11 @@ public class FuzzyDeduper implements Deduper{
     public FuzzyDeduper(Set<String> candidateList, int granularity){
         if(candidateList == null || candidateList.size()<1) throw new IllegalArgumentException();
         this.candidates = candidateList;
+        this.granularity = granularity;
         for(String candidate : candidates) {
             candidate = stripIllegalChars(candidate);
             List<String> phonemes = makeAllPhonemes(candidate, granularity);
-            upsertPhonemes(candidate, phonemes);    //Create map of phonemes
+            upsertPhonemes(phonemeMap, candidate, phonemes);    //Create map of phonemes
         }
     }
 
@@ -56,14 +58,14 @@ public class FuzzyDeduper implements Deduper{
         return candidate;
     }
 
-    private void upsertPhonemes(String candidate, List<String> phonemeList) {
+    private void upsertPhonemes(Map<String, Set<String>> m, String candidate, List<String> phonemeList) {
         for(String phoneme: phonemeList){
-            if(phonemeMap.containsKey(phoneme)){    //Phoneme present, add candidate to set
-                phonemeMap.get(phoneme).add(candidate);
+            if(m.containsKey(phoneme)){    //Phoneme present, add candidate to set
+                m.get(phoneme).add(candidate);
             } else {
                 Set<String> c = new HashSet<String>();
                 c.add(candidate);
-                phonemeMap.put(phoneme,c);
+                m.put(phoneme,c);
             }
         }
     }
@@ -84,14 +86,15 @@ public class FuzzyDeduper implements Deduper{
         for(String phoneme: phonemeMap.keySet()){
             Set<String> words = phonemeMap.get(phoneme);
             double score = score(phoneme.length(), words.size());
-            if(score>10){   //todo: configurable
+            if(score>500){   //Don't bother to count the small stuff //todo: configurable
                 Set<Pair<String,String>> wordPairs = makePairs(words);
                 //Increment score
                 for(Pair<String,String> p: wordPairs){
+                    double discountedScore = discountScore(score, p);
                     if(scores.containsKey(p)) {
-                        scores.put(p, scores.get(p) + score);
+                        scores.put(p, scores.get(p) + discountedScore);
                     }
-                    else scores.put(p, score);
+                    else scores.put(p, discountedScore);
                 }
             }
         }
@@ -117,6 +120,26 @@ public class FuzzyDeduper implements Deduper{
 
     private double score(int phonemeLength, int numberOfPartners) {
         //inversely related to num of partners, directly related to length
-        return (phonemeLength * phonemeLength * phonemeLength) / Math.sqrt((double)numberOfPartners);
+        return Math.pow(phonemeLength, 3) / Math.pow((double) numberOfPartners, (.1));   //todo: configurable
     }
+    //check whether phonemes that differ are more or less common
+    private double discountScore(double score, Pair<String, String> p) {
+        HashMap<String, Set<String>> pairPhonemeMap = new HashMap<String, Set<String>>();
+        upsertPhonemes(pairPhonemeMap,p.getLeft(), makeAllPhonemes(p.getLeft(), this.granularity));
+        upsertPhonemes(pairPhonemeMap,p.getRight(), makeAllPhonemes(p.getRight(),this.granularity));
+        double accScore = 0;
+        for(Map.Entry<String, Set<String>> entry: pairPhonemeMap.entrySet()){
+            if(entry.getValue().size()==1){
+                accScore += dScore(entry.getKey().length(), phonemeMap.get(entry.getKey()).size());//Score the mismatched phonemes
+            }
+        }
+        return score / accScore;
+    }
+
+    private double dScore(int phonemeLength, int numberOfPartners) {
+        double s=  Math.pow(phonemeLength, 5) / Math.pow((double) numberOfPartners, (.8));
+//        double inv = Math.pow(s, -1);
+        return s;
+    }
+
 }

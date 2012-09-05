@@ -12,20 +12,27 @@ import java.util.Map;
 public class Test {
     public static void main(String[] args) {
 
-        HashSet sampleList = new HashSet<String>();
-        sampleList.add("one");
-        sampleList.add("onetwo");
-        sampleList.add("network");
-        sampleList.add("new york");
+//        HashSet<String> sampleList = new HashSet<String>();
+//        sampleList.add("one");
+//        sampleList.add("onetwo");
+//        sampleList.add("network");
+//        sampleList.add("new york");
 
-        FuzzyDeduper fd = new FuzzyDeduper((new CSVReader("advertisers.csv")).getNames(), 3);
+        long startTime = System.currentTimeMillis();
+
+        FuzzyDeduper fd = new FuzzyDeduper((new CSVReader("advertisers.csv")).getNames(), 5);
         int i=0;
         Map<Pair<String,String>,Double> ranks =  fd.candidatesByRank();
+
+        long endTime = System.currentTimeMillis();
+
         Iterator it = ranks.keySet().iterator();
-        while(it.hasNext() && i<1000){
+        while(it.hasNext() && i<300){
             i++;
             Pair p = (Pair)it.next();
             System.out.println("(" + i + ")  " + ranks.get(p) + "   " + p.getLeft() + " == " + p.getRight());
         }
+
+        System.out.println("Runtime: " + (endTime-startTime));
     }
 }
