@@ -1,4 +1,6 @@
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -9,6 +11,6 @@ import java.util.List;
  */
 public interface Deduper {
 //    public void load(List<String> candidates);
-    public Pair<String, String> nextCandidate();
-    public List<Pair<Integer, Pair <String,String>>> candidatesByRank();
+//    public Pair<String, String> nextCandidate();
+    public Map<Pair<String,String>,Double> candidatesByRank();
 }
