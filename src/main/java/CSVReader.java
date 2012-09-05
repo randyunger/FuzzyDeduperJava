@@ -3,7 +3,9 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,7 +18,7 @@ import java.util.List;
 //Not really CSV, \n separated! Kind of makes this class unnecessary, but since I've already started...
 
 public class CSVReader {
-    List <String> namesList = new ArrayList<String>();
+    Set<String> namesList = new HashSet<String>();
 
     public CSVReader(String fileName) {
         try {
@@ -39,7 +41,7 @@ public class CSVReader {
         }
     }
 
-    public List <String> getNames(){
+    public Set <String> getNames(){
         return namesList;
     }
 }

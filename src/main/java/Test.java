@@ -17,7 +17,7 @@ public class Test {
         sampleList.add("network");
         sampleList.add("new york");
 
-        FuzzyDeduper fd = new FuzzyDeduper(sampleList, 3);
-        fd.candidatesByRank();
+        FuzzyDeduper fd = new FuzzyDeduper((new CSVReader("advertisers.csv")).getNames(), 3);
+        System.out.println(fd.candidatesByRank());
     }
 }

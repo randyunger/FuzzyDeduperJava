@@ -31,7 +31,7 @@ public class FuzzyDeduper implements Deduper{
 
     public List<String> makeAllPhonemes(String input, int startingSize){   //todo: Should be a Set
         List<String> phonemeList = new ArrayList<String>();                //todo: make an exception if startingsize>length
-        for(int i=startingSize; i<=input.length(); i++){
+        for(int i=startingSize; i<=input.length() && i<=6; i++){           //todo: configurable
             phonemeList.addAll(makePhonemes(input, i));
         }
         return phonemeList;
@@ -94,12 +94,16 @@ public class FuzzyDeduper implements Deduper{
                 else scores.put(p, score);
             }
         }
-        return scores;
+
+        return MapUtil.sortByValue(scores);
     }
 
-    private Set<Pair<String,String>> makePairs(Set<String> words){
+    private Set<Pair<String,String>> makePairs(Set<String> wordList){
         Set<Pair<String,String>> wordPairs = new HashSet<Pair<String,String>>();
-        while(!words.isEmpty()){
+        Set<String> words = new HashSet<String>();
+        if(wordList.size()<2 || wordList.size()>100) return wordPairs;//>100, too common?
+        words.addAll(wordList);
+        while(!words.isEmpty()){                       //todo: this is horribly inefficient
             Iterator i = words.iterator();
             String word = (String)i.next();
             words.remove(word);
