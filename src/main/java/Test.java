@@ -20,7 +20,7 @@ public class Test {
 
         long startTime = System.currentTimeMillis();
 
-        FuzzyDeduper fd = new FuzzyDeduper((new CSVReader("advertisers.csv")).getNames(), 5);
+        FuzzyDeduper fd = new FuzzyDeduper((new CSVReader("input.csv")).getNames(), 5);
         int i=0;
         Map<Pair<String,String>,Double> ranks =  fd.candidatesByRank();
 
